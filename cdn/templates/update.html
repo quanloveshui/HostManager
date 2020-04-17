@@ -1,0 +1,43 @@
+﻿{% extends 'index.html' %}
+{% load staticfiles %}
+{% block right-content-container %}
+
+
+
+<div class="container">
+<form action="/add" method="post" role="form">
+        <input type="hidden" name="id"  value="{{ data.id }}" ><br/>
+		<div class="form-group">
+		  <label class="control-label">主机名:&nbsp </label>
+		  <input class="form-control" type="text" name="name" value="{{ data.name  }}"/>
+		</div>
+		<div class="form-group">
+		  <label class="control-label">IP地址:&nbsp </label>
+		  <input class="form-control" type="text" name="ip_address" value="{{ data.ip_address }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">省份:&nbsp </label>
+		  <input class="form-control" type="text" name="province" value="{{ data.province }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">城市:&nbsp </label>
+		  <input class="form-control" type="text" name="city" value="{{ data.city }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">运营商:&nbsp </label>
+		  <input class="form-control" type="text" name="isp" value="{{ data.isp }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">代理商:&nbsp </label>
+		  <input class="form-control" type="text" name="machineagent" value="{{ data.machineagent }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">vip:&nbsp </label>
+		  <input class="form-control" type="text" name="vip" value="{{ data.vip }}"/>
+		</div>
+          <input type="submit" value="保存" class="btn btn-default "/>
+
+
+</form>
+</div>
+{% endblock %}

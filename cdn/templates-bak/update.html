@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+	 <!-- 引入jQuery -->
+	<script src="http://apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	 <!-- 引入 Bootstrap -->
+	 <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+	 <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet" type="text/css">
+	  <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+	 <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+	 	 
+	 <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <title>修改个人信息</title>
+</head>
+<body>
+
+<div class="container">
+<form action="/add" method="post" role="form">
+        <input type="hidden" name="id"  value="{{ data.id }}" ><br/>
+		<div class="form-group">
+		  <label class="control-label">主机名:&nbsp </label>
+		  <input class="form-control" type="text" name="name" value="{{ data.name  }}"/>
+		</div>
+		<div class="form-group">
+		  <label class="control-label">IP地址:&nbsp </label>
+		  <input class="form-control" type="text" name="ip" value="{{ data.ip_address }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">省份:&nbsp </label>
+		  <input class="form-control" type="text" name="province" value="{{ data.province }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">城市:&nbsp </label>
+		  <input class="form-control" type="text" name="city" value="{{ data.city }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">运营商:&nbsp </label>
+		  <input class="form-control" type="text" name="isp" value="{{ data.isp }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">代理商:&nbsp </label>
+		  <input class="form-control" type="text" name="agent" value="{{ data.machineagent }}"/>
+		</div>
+	    <div class="form-group">
+		  <label class="control-label">vip:&nbsp </label>
+		  <input class="form-control" type="text" name="vip" value="{{ data.vip }}"/>
+		</div>
+          <input type="submit" value="保存" class="btn btn-default "/>
+
+
+</form>
+</div>
+</body>
+</html>
