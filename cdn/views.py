@@ -15,6 +15,9 @@ from django.contrib.auth.decorators import  login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 import random
+import xlwt,datetime
+from xlwt import *
+import json
 
 from .models import Student,Nodeinfo
 
@@ -23,11 +26,6 @@ from .models import Student,Nodeinfo
 # Bootstrap 测试
 # def test(request):
 #     return render(request, 'index.html')
-
-
-
-
-
 
 
 # 查询所有，并分页显示
@@ -40,7 +38,7 @@ def query(request):
     filed_name = filed_name[1:]#去除第一个ID
     dic = dict(zip(field_list,filed_name))
     limit = 3  # 每页显示的记录数
-    querysets_data = Nodeinfo.objects.all()
+    querysets_data = Nodeinfo.objects.all().order_by('id')
     paginator = Paginator(querysets_data, limit)  # 实例化一个分页对象
     page = request.GET.get('page')  # 获取页码
     try:
@@ -123,6 +121,115 @@ def delSelect(request):
     Nodeinfo.objects.extra(where=['id IN ' + str(blist) + '']).delete()
 
     return HttpResponse("delect success")
+
+#写数据到excle中
+def wite_to_excel(n,head_data,records,download_path):
+    #获取时间戳
+    timestr = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    # 工作表
+    wbk = xlwt.Workbook()
+    sheet1 = wbk.add_sheet('sheet1',cell_overwrite_ok=True)
+    #写入表头
+    for filed in range(0,len(head_data)):
+        sheet1.write(0,filed,head_data[filed],excel_head_style())
+    #写入数据记录
+    for row in range(1,n+1):
+        for col in range(0,len(head_data)):
+            sheet1.write(row,col,records[row-1][col],excel_record_style())
+            #设置默认单元格宽度
+            sheet1.col(col).width = 256*15
+
+    file = '/cdn'+timestr +'.xls'
+    wbk.save(download_path+file)
+    return download_path+file
+
+# 定义导出文件表头格式
+def excel_head_style():
+    # 创建一个样式
+    style = XFStyle()
+    #设置背景色
+    pattern = Pattern()
+    pattern.pattern = Pattern.SOLID_PATTERN
+    pattern.pattern_fore_colour = Style.colour_map['light_green']  # 设置单元格背景色
+    style.pattern = pattern
+    # 设置字体
+    font0 = xlwt.Font()
+    font0.name = u'微软雅黑'
+    font0.bold = True
+    font0.colour_index = 0
+    font0.height = 240
+    style.font = font0
+    #设置文字位置
+    alignment = xlwt.Alignment()  # 设置字体在单元格的位置
+    alignment.horz = xlwt.Alignment.HORZ_CENTER  # 水平方向
+    alignment.vert = xlwt.Alignment.VERT_CENTER  # 竖直方向
+    style.alignment = alignment
+    # 设置边框
+    borders = xlwt.Borders()  # Create borders
+    borders.left = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.right = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.top = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.bottom = xlwt.Borders.THIN  # 添加边框-虚线边框
+    style.borders = borders
+
+    return style
+
+# 定义导出文件记录格式
+def excel_record_style():
+    # 创建一个样式
+    style = XFStyle()
+    #设置字体
+    font0 = xlwt.Font()
+    font0.name = u'微软雅黑'
+    font0.bold = False
+    font0.colour_index = 0
+    font0.height = 200
+    style.font = font0
+    #设置文字位置
+    alignment = xlwt.Alignment()  # 设置字体在单元格的位置
+    alignment.horz = xlwt.Alignment.HORZ_CENTER  # 水平方向
+    alignment.vert = xlwt.Alignment.VERT_CENTER  # 竖直方向
+    style.alignment = alignment
+    # 设置边框
+    borders = xlwt.Borders()  # Create borders
+    borders.left = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.right = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.top = xlwt.Borders.THIN  # 添加边框-虚线边框
+    borders.bottom = xlwt.Borders.THIN  # 添加边框-虚线边框
+    style.borders = borders
+
+    return style
+
+#查询所有数据并写到download目录
+def exportall(request):
+    querysets_data = Nodeinfo.objects.all()
+    n = len(querysets_data)
+    #表头
+    head_data =['主机名', 'IP地址', '省份', '城市', '运营商', '代理商', 'VIP地址']
+    #查询数据库数据
+    records = []#[['EACNCTC_BJJ_BJJ01_LCAH002', '101.254.240.86', '北京', '北京', '电信', '高升', None], ['EACNCTC_GDY_DGY03_LCAH001', '121.12.104.234', '广东', '东莞', '电信', '资拓', 'None']]
+    for data in querysets_data:
+        name= data.name
+        ip = data.ip_address
+        province = data.province
+        city = data.city
+        isp = data.isp
+        machineagent = data.machineagent
+        vip = data.vip
+        record = []
+        record.append(name)
+        record.append(ip)
+        record.append(province)
+        record.append(city)
+        record.append(isp)
+        record.append(machineagent)
+        record.append(vip)
+        records.append(record)
+    download_path = 'download'
+
+    filename = wite_to_excel(n, head_data, records, download_path)
+    result = {'status':True,'download_url':filename}
+    return HttpResponse(json.dumps(result))
 
 
 

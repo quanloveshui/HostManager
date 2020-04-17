@@ -19,10 +19,10 @@
            $("#checkAll").click(function() {
 			//不知为何$('input[name="subBox"]').attr("checked",this.checked);不行
 				var allvalue = document.getElementsByName('subBox');
-				 for (var i = 0; i < allvalue.length; i++) {        
-					if (allvalue[i].type == "checkbox")             
-						allvalue[i].checked = this.checked;  //遍历所有subBox，设置为主checkbox属性           
-					}  
+				 for (var i = 0; i < allvalue.length; i++) {
+					if (allvalue[i].type == "checkbox")
+						allvalue[i].checked = this.checked;  //遍历所有subBox，设置为主checkbox属性
+					}
             });
             var $subBox = $("input[name='subBox']");
             $subBox.click(function(){//当点击subBox时，将主checkbox设置为false（通过检测是否全选）
@@ -43,11 +43,30 @@
            data: "arr="+arr,
            success: function(msg){
 			//通过模拟点击查询按钮，刷新当前页面
-			   $("#queryById").click()
+			   $("#search").click()
         }
     });
   };
-	</script>
+
+ function export_excel() {
+           $.ajax({
+		   type: "GET",
+           url: "/exportall",
+           success: function(msg){
+           data = JSON.parse(msg);
+           if(!data.status){
+             alert('导出失败');
+             }
+           else{
+             <!--alert(data.status)-->
+              window.location.href = data.download_url;
+               }
+           }
+    });
+ }
+
+</script>
+
     <title>数据展示平台</title>
 	
 </head>
@@ -69,8 +88,12 @@
   <input type="submit" id="search" value="查询" class="btn btn-default "/>
   &nbsp&nbsp<a href="/add" class="btn btn-primary">添加</a>
   &nbsp&nbsp&nbsp<a onclick="GetCkboxValues()" class="btn btn-danger">批量删除</a>
+	 <button onclick="export_excel()" type="button" class="btn btn-primary">导出excel</button>
   </div>
 </form>
+
+
+
 <p></p>
 <table class="table table-bordered form-inline" align="center">
 <caption></caption>
@@ -124,6 +147,9 @@
 		<a href="?page={{ data.next_page_number }}">下一页</a>
 	{% endif %}
 </p>
-	
+
 </div>
+
+
 {% endblock %}
+

@@ -130,3 +130,6 @@ os.path.join(BASE_DIR, 'static'),
 )
 
 LOGIN_URL = 'login/'
+#设置后可以直接访问download目录下文件
+MEDIA_URL='download/'
+MEDIA_ROOT=os.path.join(BASE_DIR,'download')

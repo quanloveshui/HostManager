@@ -1,5 +1,7 @@
 from django.conf.urls import url,include
 from cdn import views
+from django.views.static import serve
+from django.conf import settings
 
 urlpatterns = [
 
@@ -19,6 +21,9 @@ urlpatterns = [
     url(r'^delSelect$',views.delSelect,name='delSelect'),
     #更新数据，根据id
     url(r'update$',views.update,name='update'),
+    url(r'exportall$',views.exportall,name='export_all_excel'),
+    #url(r'download$',views.download,name='download'),
+   url(r'download/(?P<path>.*)',serve,{'document_root':settings.MEDIA_ROOT})
 
 
 ]
