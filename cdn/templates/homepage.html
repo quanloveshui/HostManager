@@ -1,0 +1,69 @@
+{% extends 'index.html' %}
+{% load staticfiles %}
+{% block right-content-container %}
+
+<head>
+<meta charset="utf-8">
+<title>info</title>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+</head>
+<body>
+   
+<div class="row">
+  <div class="col-md-12">
+    <div class="tile">
+      <div class="tile-body">
+       节点信息
+        <table class="table table-bordered table-hover table-sm form-inline" id="platform" align="center">
+          <thead class="thead-light">
+            <tr>
+              <th>主机数量</th>
+              <th>省份数量</th>
+              <th>城市数量</th>
+            </tr>
+            </thead>
+              <tbody>
+            <tr class="info">
+                  {% for k,v in data.items %}
+                  <td> {{ v }}</td>
+                  {% endfor %} 
+                  
+            </tr>
+     </div>
+   </div>
+   </div>
+   </div>
+
+
+
+
+          <table class="table table-bordered table-hover table-sm form-inline" id="platform" align="center">
+          <thead class="thead-light">
+            <tr class="info">
+              <th>省份</th>
+              <th>城市</th>
+              <th>运营商</th>
+              <th>数量</th>
+            </tr>
+            </thead>
+              <tbody>
+               <tr >
+                  {% for data in info %}
+                  <td> {{ data.province }}</td>
+                  <td> {{ data.city }}</td>
+                  <td> {{ data.isp }}</td>
+                  <td> {{ data.count }}</td>
+               </tr>
+                  {% endfor %}
+           </tbody>
+         </table>
+
+
+
+
+
+
+
+</body>     
+{% endblock %}

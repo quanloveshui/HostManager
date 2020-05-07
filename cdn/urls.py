@@ -9,6 +9,7 @@ urlpatterns = [
     #url(r'^show$',views.show,name='show'),
     url(r'^login/',views.acc_login ),
     url(r'^logout/',views.acc_logout,name="logout" ),
+	url(r'^home$',views.home,name='home'),
     #显示所有数据
     url(r'^index$',views.query,name='query'),
     #根据条件查询数据

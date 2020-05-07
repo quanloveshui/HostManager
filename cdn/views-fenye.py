@@ -10,6 +10,7 @@ from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import  login_required
+from django.db.models.aggregates import Count
 
 #包装csrf请求，避免django认为其实跨站攻击脚本
 from django.views.decorators.csrf import csrf_exempt
@@ -19,7 +20,7 @@ import xlwt,datetime
 from xlwt import *
 import json
 
-from .models import Student,Nodeinfo
+from .models import Nodeinfo
 
 
 
@@ -37,17 +38,29 @@ def query(request):
     filed_name = [field_obj[i].verbose_name for i in range(len(field_obj))]  # 所有字段中文名组成列表  ['ID', '主机名', 'IP地址', '省份', '城市', '运营商', '代理商', 'VIP地址']
     filed_name = filed_name[1:]#去除第一个ID
     dic = dict(zip(field_list,filed_name))
-    limit = 3  # 每页显示的记录数
+    limit = 15  # 每页显示的记录数
+
+    after_range_num = 2        #当前页前显示5页
+    befor_range_num = 2       #当前页后显示4页
+    page_range=()
+
     querysets_data = Nodeinfo.objects.all().order_by('id')
     paginator = Paginator(querysets_data, limit)  # 实例化一个分页对象
     page = request.GET.get('page')  # 获取页码
     try:
         querysets_data = paginator.page(page)  # 获取某页对应的记录
+
+        if int(page) >= after_range_num:
+            page_range = paginator.page_range[int(page)-after_range_num:int(page)+befor_range_num]
+        else:
+            page_range = paginator.page_range[0:int(page)+befor_range_num]
+        #print('>>>>>>',page_range)
+
     except PageNotAnInteger:  # 如果页码不是个整数
         querysets_data = paginator.page(1)  # 取第一页的记录
     except EmptyPage:  # 如果页码太大，没有相应的记录
         querysets_data = paginator.page(paginator.num_pages)  # 取最后一页的记录
-    return render_to_response('curd.html', {'data': querysets_data,'field_name':filed_name})
+    return render_to_response('curd.html', {'data': querysets_data,'field_name':filed_name,'page_range':page_range})
 
 
 # 显示一条数据
@@ -59,10 +72,9 @@ def search(request):
     if id == "":  # 若无输入，则转移到query查询所有
         return HttpResponseRedirect("/index")
     #bb = Nodeinfo.objects.filter(id=id)  # 通过id 过滤结果
-    bb = Nodeinfo.objects.filter(Q(name__icontains=q)|Q(ip_address__icontains=q))#通过主机名或者ip查询
+    bb = Nodeinfo.objects.filter(Q(name__icontains=q)|Q(ip_address__icontains=q)|Q(province__icontains=q)|Q(city__icontains=q)|Q(isp__icontains=q))#通过主机名或者ip查询
     return render_to_response('curd.html', {'data': bb,'field_name':filed_name})
-	
-	
+
 #显示首页数据
 def home(request):
     city_list=[]
@@ -107,11 +119,13 @@ def add(request):
         id = request.POST['id']
         hostname = request.POST['name']
         ip = request.POST['ip_address']
+        v6 = request.POST['v6']
         province = request.POST['province']
         city = request.POST['city']
         isp = request.POST['isp']
         agent = request.POST['machineagent']
         vip = request.POST['vip']
+        content = request.POST['content']
         print(dict(request.POST))
         obj = Nodeinfo()
         if len(id) > 0:
@@ -119,11 +133,13 @@ def add(request):
             obj.id = id;
         obj.name = hostname
         obj.ip_address = ip
+        obj.v6 = v6
         obj.province = province
         obj.city = city
         obj.isp = isp
         obj.machineagent = agent
         obj.vip = vip
+        obj.content = content
         obj.save()
 
         return HttpResponseRedirect("/index")  # 转移执行query刷新操作
@@ -170,7 +186,7 @@ def wite_to_excel(n,head_data,records,download_path):
             #设置默认单元格宽度
             sheet1.col(col).width = 256*15
 
-    file = '/cdn'+timestr +'.xls'
+    file = '/livecdn'+timestr +'.xls'
     wbk.save(download_path+file)
     return download_path+file
 
@@ -236,25 +252,29 @@ def exportall(request):
     querysets_data = Nodeinfo.objects.all()
     n = len(querysets_data)
     #表头
-    head_data =['主机名', 'IP地址', '省份', '城市', '运营商', '代理商', 'VIP地址']
+    head_data =['主机名', 'IP地址','V6地址', '省份', '城市', '运营商', '代理商', 'VIP地址','备注']
     #查询数据库数据
     records = []#[['EACNCTC_BJJ_BJJ01_LCAH002', '101.254.240.86', '北京', '北京', '电信', '高升', None], ['EACNCTC_GDY_DGY03_LCAH001', '121.12.104.234', '广东', '东莞', '电信', '资拓', 'None']]
     for data in querysets_data:
         name= data.name
         ip = data.ip_address
+        v6 = data.v6
         province = data.province
         city = data.city
         isp = data.isp
         machineagent = data.machineagent
         vip = data.vip
+        content = data.content
         record = []
         record.append(name)
         record.append(ip)
+        record.append(v6)
         record.append(province)
         record.append(city)
         record.append(isp)
         record.append(machineagent)
         record.append(vip)
+        record.append(content)
         records.append(record)
     download_path = 'download'
 
